@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('layouts/header') -%>
+
+    <body>
+        <!-- Navigation-->
+        <%- include('layouts/navbar') -%>
+            <!-- Page Header-->
+            <header class="masthead" style="background-image: url('assets/img/4.jpg')">
+                <div class="container position-relative px-4 px-lg-5">
+                    <div class="row gx-4 gx-lg-5 justify-content-center">
+                        <div class="col-md-10 col-lg-8 col-xl-7">
+                            <div class="page-heading">
+                                <h1>Book your G Road Test</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <!-- Main Content-->
+            <article class="mb-4 w-50 mx-auto">
+                <div class="row gx-4 gx-lg-5 d-flex align-items-center justify-content-center">
+                    <form id="contactForm" class="text-center w-50" action="/find-g2" method="post">
+                        <% if(message){ %>
+                            <div class="col mb-3">
+                                <% if(message==="No User Found" ){ %>
+                                    <h5 class="text-danger">
+                                        <%= message %>
+                                            ,Please book your G2 Test first using this <a
+                                                class="text-decoration-underline" href="/g2-test">link</a>
+                                    </h5>
+                                    <% }else{ %>
+                                        <h3>
+                                            <%= message %>
+                                        </h3>
+                                        <% } %>
+                            </div>
+                            <% } %>
+                    </form>
+                </div>
+                <% if (user) { %>
+                    <form class="mt-5" id="contactForm" method="post" action="/book-g">
+                        <div>
+                            <label>
+                                <h2>Personal Information - <span class="fs-5">(You cannot update these details)</span>
+                                </h2>
+                            </label>
+                        </div>
+                        <div class="form-floating">
+                            <input readonly value="<%= user.firstname %>" class="form-control" id="firstName"
+                                name="firstName" type="text" required placeholder="Enter your first name..." />
+                            <label for="firstName">First Name</label>
+                        </div>
+                        <div class="form-floating">
+                            <input readonly value="<%= user.lastname %>" class="form-control" id="lastName"
+                                name="lastName" type="text" required placeholder="Enter your last name..." />
+                            <label for="lastName">Last Name</label>
+                        </div>
+                        <div class="form-floating">
+                            <input readonly value="<%= user.licenseNo %>" class="form-control" id="licenseNumber"
+                                name="licenseNumber" type="text" required placeholder="Enter your licence number..." />
+                            <label for="licenseNumber">Licence Number</label>
+                        </div>
+                        <div class="form-floating">
+                            <input readonly value="<%= user.age %>" class="form-control" id="age" name="age"
+                                type="number" required placeholder="Enter your age..." />
+                            <label for="age">Age</label>
+                        </div>
+                        <div class="form-floating">
+                            <input readonly value="<%= user.formattedDob %>" class="form-control" id="dob" name="dob"
+                                type="Date" required placeholder="Enter your date of birth..." />
+                            <label for="dob">DOB</label>
+                        </div>
+                        <br><br><br>
+
+                        <div>
+                            <label>
+                                <h2>Car Details - <span class="fs-5">(Please update your car details if
+                                        necessary)</span></h2>
+                            </label>
+                        </div>
+                        <object>
+                            <div class="form-floating">
+                                <input value="<%= user?.car_details?.make %>" required class="form-control" id="make"
+                                    name="make" type="text" placeholder="Enter car make..." />
+                                <label for="make">Make</label>
+                            </div>
+                            <div class="form-floating">
+                                <input value="<%= user?.car_details?.model %>" required class="form-control" id="model"
+                                    name="model" type="text" placeholder="Enter car model..." />
+                                <label for="model">Model</label>
+                            </div>
+                            <div class="form-floating">
+                                <input value="<%= user?.car_details?.year %>" required class="form-control" id="year"
+                                    name="year" type="number" placeholder="Enter car year..." pattern="[0-9]{4}" />
+                                <label for="year">Year</label>
+                            </div>
+                            <div class="form-floating">
+                                <input value="<%= user?.car_details?.platno %>" required class="form-control"
+                                    id="plateNumber" name="plateNumber" type="text"
+                                    placeholder="Enter car plate number..." />
+                                <label for="plateNumber">Plate Number</label>
+                            </div>
+                        </object>
+                        <br />
+                        <!-- Submit Button-->
+                        <button class="btn btn-secondary rounded text-uppercase" type="submit">Book</button>
+                    </form>
+                    <% }%>
+            </article>
+            <!-- Footer-->
+            <%- include('layouts/footer') -%>
+                <!-- Bootstrap core JS-->
+                <%- include('layouts/script') -%>
+    </body>
+
+</html>

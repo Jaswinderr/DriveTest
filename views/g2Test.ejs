@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('layouts/header') -%>
+
+<body>
+    <!-- Navigation-->
+    <%- include('layouts/navbar') -%>
+    <!-- Page Header-->
+    <header class="masthead" style="background-image: url('assets/img/2.jpg')">
+        <div class="container position-relative px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <div class="page-heading">
+                        <h1>Book your G2 Road Test</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- Main Content-->
+    <main class="mb-4">
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                </div>
+                <div class="mb-4 text-danger">
+                    <% if(showSuccessMessage) { %>
+                        <h1>You have successfully booked your G2 exam. You can book another one if needed.</h1>
+                    <% } %>
+                </div>
+                <form id="contactForm" method="post" action="/book-g2">
+                    <div>
+                        <label>
+                            <h2>Personal Information</h2>
+                        </label>
+                    </div>
+                    <div class="form-floating">
+                        <input class="form-control"
+                            value="<%= user?.licenseNo === 'default' ? '' : user?.firstname %>" id="firstName"
+                            name="firstName" type="text" required placeholder="Enter your first name..." />
+                        <label for="firstName">First Name</label>
+                    </div>
+                    <div class="form-floating">
+                        <input class="form-control"
+                            value="<%= user?.licenseNo === 'default' ? '' : user?.lastname %>" id="lastName"
+                            name="lastName" type="text" required placeholder="Enter your last name..." />
+                        <label for="lastName">Last Name</label>
+                    </div>
+                    <div class="form-floating">
+                        <input class="form-control"
+                            value="<%= user?.licenseNo === 'default' ? '' : user?.licenseNo %>"
+                            id="licenseNumber" name="licenseNumber" type="text" required
+                            placeholder="Enter your licence number..." />
+                        <label for="licenseNumber">Licence Number</label>
+                    </div>
+                    <div class="form-floating">
+                        <input class="form-control" value="<%= user?.licenseNo === 'default' ? '' : user?.age %>"
+                            id="age" name="age" type="number" required placeholder="Enter your age..." />
+                        <label for="age">Age</label>
+                    </div>
+                    <div class="form-floating">
+                        <input class="form-control"
+                            value="<%= user?.licenseNo === 'default' ? '' : user?.formattedDob %>" id="dob"
+                            name="dob" type="Date" required placeholder="Enter your date of birth..." />
+                        <label for="dob">DOB</label>
+                    </div>
+                    <br><br><br>
+
+                    <div>
+                        <label>
+                            <h2>Car Details</h2>
+                        </label>
+                    </div>
+                    <object>
+                        <div class="form-floating">
+                            <input required class="form-control"
+                                value="<%= user?.licenseNo === 'default' ? '' : user?.car_details?.make %>"
+                                id="make" name="make" type="text" placeholder="Enter car make..." />
+                            <label for="make">Make</label>
+                        </div>
+                        <div class="form-floating">
+                            <input required class="form-control"
+                                value="<%= user?.licenseNo === 'default' ? '' : user?.car_details?.model %>"
+                                id="model" name="model" type="text" placeholder="Enter car model..." />
+                            <label for="model">Model</label>
+                        </div>
+                        <div class="form-floating">
+                            <input required class="form-control"
+                                value="<%= user?.licenseNo === 'default' ? '' : user?.car_details?.year %>"
+                                id="year" name="year" type="number" placeholder="Enter car year..."
+                                pattern="[0-9]{4}" />
+                            <label for="year">Year</label>
+                        </div>
+                        <div class="form-floating">
+                            <input required class="form-control"
+                                value="<%= user?.licenseNo === 'default' ? '' : user?.car_details?.platno %>"
+                                id="plateNumber" name="plateNumber" type="text"
+                                placeholder="Enter car plate number..." />
+                            <label for="plateNumber">Plate Number</label>
+                        </div>
+                    </object>
+                    <br />
+
+                    <!-- Date Selection -->
+                    <div class="form-group">
+                        <label for="appointmentDate"><h2>Select Appointment Date</h2></label>
+                        <input type="date" name="appointmentDate" class="form-control" id="appointmentDate" name="appointmentDate" required>
+                    </div>
+
+                    <!-- Available Time Slots -->
+                    <div class="form-group">
+                        <label for="timeSlots"><h2>Available Time Slots</h2></label>
+                        <div id="availableTimeSlots" class="d-flex flex-wrap"></div>
+                        <input type="hidden" id="selectedTime" name="time" value="">
+                    </div>
+
+                    <br />
+                    <!-- Submit Button-->
+                    <button class="btn btn-secondary rounded text-uppercase" type="submit">Book</button>
+                </form>
+            </div>
+        </div>
+    </main>
+    <!-- Footer-->
+    <%- include('layouts/footer') -%>
+    <!-- Bootstrap core JS-->
+    <%- include('layouts/script') -%>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const availableTimeSlotsDiv = document.getElementById('availableTimeSlots');
+            const selectedTimeInput = document.getElementById('selectedTime');
+            const appointmentDateInput = document.getElementById('appointmentDate');
+
+            // Fetch available time slots when date is selected
+            appointmentDateInput.addEventListener('change', async function() {
+                const date = this.value;
+                const response = await fetch(`/appointments/available?date=${date}`);
+                const availableTimes = await response.json();
+
+                availableTimeSlotsDiv.innerHTML = ''; // Clear previous slots
+
+                availableTimes.forEach(time => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'btn btn-outline-primary m-1';
+                    button.innerText = time;
+                    button.dataset.time = time;
+
+                    button.addEventListener('click', function() {
+                        // Clear previously selected buttons
+                        Array.from(availableTimeSlotsDiv.children).forEach(btn => {
+                            btn.classList.remove('btn-primary');
+                            btn.classList.add('btn-outline-primary');
+                        });
+                        button.classList.add('btn-primary');
+                        button.classList.remove('btn-outline-primary');
+                        selectedTimeInput.value = time; // Set the selected time
+                    });
+
+                    availableTimeSlotsDiv.appendChild(button);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
