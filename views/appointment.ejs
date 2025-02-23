@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('./layouts/header') -%>
+
+    <head>
+        <!-- Link to CSS file -->
+        <link rel="stylesheet" href="/css/styles.css">
+    </head>
+
+    <body>
+        <!-- Navigation-->
+        <%- include('./layouts/navbar') -%>
+            <!-- Page Header-->
+            <header class="masthead" style="background-image: url('/assets/img/3.jpg')">
+                <div class="container position-relative px-4 px-lg-5">
+                    <div class="row gx-4 gx-lg-5 justify-content-center">
+                        <div class="col-md-10 col-lg-8 col-xl-7">
+                            <div class="post-heading">
+                                <h1>Appointment</h1>
+                                <h2 class="subheading">Book your Drive Test Now</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="mb-4">
+                <div class="container px-4 px-lg-5">
+                    <div class="row gx-4 gx-lg-5 justify-content-center">
+                        <div class="col-md-10 col-lg-8 col-xl-7">
+                            <div class="container">
+                                <h1 class="mt-5">Create Appointment Slots</h1>
+                                <form id="appointmentForm" method="POST" action="/appointments">
+                                    <div class="form-group">
+                                        <label for="date">Select Date</label>
+                                        <input type="date" class="form-control" id="date" name="date" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Select Time Slots</label>
+                                        <div id="timeSlots" class="d-flex flex-wrap">
+                                            <button type="button" class="btn btn-outline-primary m-1"
+                                                data-time="9:00">9:00</button>
+                                            <button type="button" class="btn btn-outline-primary m-1"
+                                                data-time="9:30">9:30</button>
+                                            <button type="button" class="btn btn-outline-primary m-1"
+                                                data-time="10:00">10:00</button>
+                                            <!-- Add more time slots as needed -->
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="selectedTimes" name="times" value="">
+                                    <button type="submit" class="btn btn-primary">Create Slots</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </main>
+            <!-- Footer-->
+            <%- include('./layouts/footer') -%>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const timeButtons = document.querySelectorAll('#timeSlots button');
+                        const selectedTimesInput = document.getElementById('selectedTimes');
+
+                        document.getElementById('date').addEventListener('change', async function () {
+                            const date = this.value;
+                            const response = await fetch(`/appointments/check?date=${date}`);
+                            const unavailableTimes = await response.json();
+
+                            timeButtons.forEach(button => {
+                                const time = button.getAttribute('data-time');
+                                if (unavailableTimes.includes(time)) {
+                                    button.disabled = true;
+                                    button.classList.remove('btn-outline-primary');
+                                    button.classList.add('btn-secondary');
+                                } else {
+                                    button.disabled = false;
+                                    button.classList.remove('btn-secondary');
+                                    button.classList.add('btn-outline-primary');
+                                }
+                            });
+                        });
+
+                        timeButtons.forEach(button => {
+                            button.addEventListener('click', function () {
+                                if (button.disabled) return;
+
+                                button.classList.toggle('btn-primary');
+                                button.classList.toggle('btn-outline-primary');
+
+                                const selectedTimes = Array.from(timeButtons)
+                                    .filter(btn => btn.classList.contains('btn-primary'))
+                                    .map(btn => btn.getAttribute('data-time'));
+
+                                selectedTimesInput.value = selectedTimes.join(',');
+
+                                console.log('Selected Times:', selectedTimesInput.value); // Debugging
+                            });
+                        });
+                    });
+                </script>
+
+                <!-- Bootstrap core JS-->
+                <%- include('./layouts/script') -%>
+    </body>
+
+</html>
